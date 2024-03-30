@@ -31,7 +31,9 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/propagation"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
@@ -64,19 +66,29 @@ var (
 // @license.name	Apache 2.0
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
+	ctx := context.Background()
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	gin.SetMode(gin.DebugMode)
 
 	basePath, _ := os.LookupEnv("BASE_PATH")
 	docs.SwaggerInfo.BasePath = basePath
 
-	tp, err := initTracer()
+	tp, err := initTracer(ctx)
 	if err != nil {
 		log.Fatal().Err(err)
 	}
+
+	mr, err := initMeter(ctx)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
 			log.Printf("Error shutting down tracer provider: %v", err)
+		}
+		if err := mr.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down meter provider: %v", err)
 		}
 	}()
 
@@ -167,9 +179,7 @@ func handleSigterm() {
 	}()
 }
 
-func initTracer() (*sdktrace.TracerProvider, error) {
-	ctx := context.Background()
-
+func initTracer(ctx context.Context) (*sdktrace.TracerProvider, error) {
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			// the service name used to display traces in backends
@@ -215,6 +225,30 @@ func initTracer() (*sdktrace.TracerProvider, error) {
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return tp, nil
+}
+
+func initMeter(ctx context.Context) (*sdkmetric.MeterProvider, error) {
+	res, err := resource.New(ctx,
+		resource.WithAttributes(
+			// the service name used to display traces in backends
+			semconv.ServiceName("cart-api"),
+		),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create resource: %w", err)
+	}
+
+	exp, err := stdoutmetric.New()
+	if err != nil {
+		return nil, err
+	}
+
+	mp := sdkmetric.NewMeterProvider( 
+		sdkmetric.WithResource(res),
+		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(exp)),
+	)
+	otel.SetMeterProvider(mp)
+	return mp, nil
 }
 
 func initRedis(redisHost string) (*redis.Client, error) {

@@ -6,9 +6,11 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto';
+import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ERROR);
 
 export const OpenTelemetry = (serviceName: string) => {
-  // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
   const resource = Resource.default().merge(
     new Resource({
@@ -23,8 +25,9 @@ export const OpenTelemetry = (serviceName: string) => {
 
   const metricReader = new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
-      url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+      url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT_HTTP,
     }),
+    exportIntervalMillis: 10_000,
   });
 
   return new NodeSDK({

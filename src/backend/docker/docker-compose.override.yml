@@ -38,6 +38,7 @@ services:
       - KAFKA_BROKER=kafka:9092
       - CHECKOUT_TOPIC=checkout
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_EXPORTER_OTLP_ENDPOINT_HTTP=http://otel-collector:4318/v1/metrics
       - BASE_URL=/checkout
 
   catalog-api:

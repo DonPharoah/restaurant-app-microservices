@@ -43,8 +43,6 @@ services:
         "--config=/etc/otel-collector-config.yaml",
         "${OTELCOL_ARGS}"
       ]
-    environment:
-      - HS_API_TOKEN=${HS_API_TOKEN}
     volumes:
       - ./docker/otel-connector-config.yaml:/etc/otel-collector-config.yaml
     ports:
