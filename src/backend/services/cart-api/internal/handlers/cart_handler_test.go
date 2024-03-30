@@ -5,14 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/google/uuid"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jurabek/cart-api/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -74,7 +73,6 @@ func TestCartHandler(t *testing.T) {
 	t.Skip()
 	ctx := context.TODO()
 
-	gin.SetMode(gin.TestMode)
 	customerBasket := models.Cart{
 		ID:        uuid.New(),
 		LineItems: items,
@@ -85,27 +83,30 @@ func TestCartHandler(t *testing.T) {
 	mockedBasketRepository.On("Get", ctx, "abcd").Return(&customerBasket, nil).Once()
 	mockedBasketRepository.On("Get", ctx, "invalid").Return(&customerBasket, fmt.Errorf("Not found item with id: %s", "invalid")).Once()
 	mockedBasketRepository.On("Update", ctx, &customerBasket).Return(nil)
-	var controller = NewCartHandler(mockedBasketRepository)
+	var handler = NewCartHandler(mockedBasketRepository)
 
-	router := gin.Default()
-	basket := router.Group("basket")
-	{
-		basket.GET(":id", ErrorHandler(controller.Get))
-		basket.POST("", ErrorHandler(controller.Create))
-	}
+	
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /basket/:id", ErrorHandler(handler.Get))
+	mux.HandleFunc("POST /basket", ErrorHandler(handler.Create))
+
+	svr := httptest.NewServer(mux)
+	defer svr.Close()
 
 	t.Run("Get should return ok when valid CustomerID", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest("GET", "/basket/abcd", nil)
-		router.ServeHTTP(w, r)
-		assert.Equal(t, http.StatusOK, w.Code)
+		r := httptest.NewRequest("GET", "/basket/abcd", nil)
+		ErrorHandler(handler.Get)(w, r)
+		res := w.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
 	})
 
 	t.Run("Get should return BadRequest when invalid CustomerID", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest("GET", "/basket/invalid", nil)
-		router.ServeHTTP(w, r)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		r := httptest.NewRequest("GET", "/basket/invalid", nil)
+		ErrorHandler(handler.Get)(w, r)
+		res := w.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
 	})
 
 	t.Run("Create should create item and return ok", func(t *testing.T) {
@@ -114,13 +115,17 @@ func TestCartHandler(t *testing.T) {
 		body, _ := json.Marshal(customerBasket)
 
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest("POST", "/basket", bytes.NewBuffer(body))
-		router.ServeHTTP(w, r)
+		r:= httptest.NewRequest("POST", "/basket", bytes.NewBuffer(body))
 
-		assert.Equal(t, http.StatusOK, w.Code)
+		ErrorHandler(handler.Create)(w, r)
+
+		res := w.Result()
+		defer res.Body.Close()
+		
+		assert.Equal(t, http.StatusOK, res.StatusCode)
 
 		var result models.Cart
-		bodyResult, _ := ioutil.ReadAll(w.Body)
+		bodyResult, _ := io.ReadAll(res.Body)
 		_ = json.Unmarshal(bodyResult, &result)
 
 		assert.Equal(t, result.ID, customerBasket.ID)
@@ -135,9 +140,12 @@ func TestCartHandler(t *testing.T) {
 		body, _ := json.Marshal(invalidCustomerBasket)
 
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest("POST", "/basket", bytes.NewBuffer(body))
-		router.ServeHTTP(w, r)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		r := httptest.NewRequest("POST", "/basket", bytes.NewBuffer(body))
+		
+		ErrorHandler(handler.Create)(w, r)
+
+		res := w.Result()
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
 	})
 
 	t.Run("Create should create item and when could not find created item return code 400", func(t *testing.T) {
@@ -151,8 +159,12 @@ func TestCartHandler(t *testing.T) {
 		body, _ := json.Marshal(invalidCustomerBasket)
 
 		w := httptest.NewRecorder()
-		r, _ := http.NewRequest("POST", "/basket", bytes.NewBuffer(body))
-		router.ServeHTTP(w, r)
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		r := httptest.NewRequest("POST", "/basket", bytes.NewBuffer(body))
+
+		ErrorHandler(handler.Create)(w, r)
+
+		res := w.Result()
+
+		assert.Equal(t, http.StatusBadRequest, res.StatusCode)
 	})
 }
