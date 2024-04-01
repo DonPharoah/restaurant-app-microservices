@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/IBM/sarama"
-	"github.com/dnwe/otelsarama"
 	"github.com/jurabek/cart-api/cmd/config"
 	"github.com/jurabek/cart-api/internal/database"
 	"github.com/jurabek/cart-api/internal/events"
@@ -86,15 +85,15 @@ func main() {
 	config.Consumer.Offsets.AutoCommit.Enable = true
 	config.Consumer.Offsets.AutoCommit.Interval = 1 * time.Second
 
-	kafkaConsumer, error := sarama.NewConsumer([]string{cfg.KafkaBroker}, config)
+	
+
+	kafkaConsumer, error := sarama.NewConsumerGroup([]string{cfg.KafkaBroker}, "cart-api", config)
 	if error != nil {
 		log.Fatal().Err(error).Msg("new consumer failed!")
 	}
-	kafkaConsumer = otelsarama.WrapConsumer(kafkaConsumer)
-
 	msgReciever := reciever.NewMessageReciever(kafkaConsumer, cfg.OrdersTopic)
 	go func() {
-		recieveErr := msgReciever.Recieve(events.NewOrderCompletedEventHandler(cartRepository))
+		recieveErr := msgReciever.Recieve(ctx, events.NewOrderCompletedEventHandler(cartRepository))
 		log.Error().Err(recieveErr).Msg("Error recieving messages")
 	}()
 
@@ -104,12 +103,12 @@ func main() {
 
 	cartBasePath := basePath + "/api/v1/cart"
 	router.HandleFunc("POST "+cartBasePath, handlers.ErrorHandler(cartHandler.Create))
-	router.HandleFunc("GET "+cartBasePath+":id", handlers.ErrorHandler(cartHandler.Get))
-	router.HandleFunc("DELETE "+cartBasePath+":id", handlers.ErrorHandler(cartHandler.Delete))
-	router.HandleFunc("PUT "+cartBasePath+":id", handlers.ErrorHandler(cartHandler.Update))
-	router.HandleFunc("POST "+cartBasePath+":id/item", handlers.ErrorHandler(cartHandler.AddItem))           // adds item or increments quantity by CartID
-	router.HandleFunc("PUT "+cartBasePath+":id/item/:itemID", handlers.ErrorHandler(cartHandler.UpdateItem)) // updates line item item_id is ignored
-	router.HandleFunc("DELETE "+cartBasePath+":id/item/:itemID", handlers.ErrorHandler(cartHandler.DeleteItem))
+	router.HandleFunc("GET "+cartBasePath+"/{id}", handlers.ErrorHandler(cartHandler.Get))
+	router.HandleFunc("DELETE "+cartBasePath+"/{id}", handlers.ErrorHandler(cartHandler.Delete))
+	router.HandleFunc("PUT "+cartBasePath+"/{id}", handlers.ErrorHandler(cartHandler.Update))
+	router.HandleFunc("POST "+cartBasePath+"/{id}/item", handlers.ErrorHandler(cartHandler.AddItem))           // adds item or increments quantity by CartID
+	router.HandleFunc("PUT "+cartBasePath+"/{id}/item/{itemID}", handlers.ErrorHandler(cartHandler.UpdateItem)) // updates line item item_id is ignored
+	router.HandleFunc("DELETE "+cartBasePath+"/{id}/item/{itemID}", handlers.ErrorHandler(cartHandler.DeleteItem))
 
 	otelRouter := otelhttp.NewHandler(router, "server",
 		otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents),
