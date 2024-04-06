@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jurabek.restaurant.order.api.models.Order;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import io.quarkus.panache.common.Page;
 
 /**
  * OrdersRepository
@@ -23,6 +24,6 @@ public class OrdersRepository implements PanacheRepositoryBase<Order, UUID> {
     }
 
     public List<Order> fetchAll() {
-      return find("#Orders.fetchAll").list();
+      return find("#Orders.fetchAll").page(Page.ofSize(30)).nextPage().list();
     }
 }
