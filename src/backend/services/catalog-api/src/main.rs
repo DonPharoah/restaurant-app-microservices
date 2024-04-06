@@ -31,6 +31,12 @@ use rocket_okapi::openapi_get_routes_spec;
 use rocket_okapi::settings::OpenApiSettings;
 use std::env;
 
+#[macro_use]
+extern crate slog;
+
+use slog::Drain;
+use std::sync::Mutex;
+
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
 
 mod db;
@@ -65,10 +71,15 @@ async fn rocket() -> _ {
     println!("manifest dir: {}", env!("CARGO_MANIFEST_DIR"));
     dotenv().ok();
 
+    let root = slog::Logger::root(
+        Mutex::new(slog_json::Json::default(std::io::stderr())).map(slog::Fuse),
+        o!("version" => env!("CARGO_PKG_VERSION"))
+    );
+
     // init_tracer();
 
     let base_url = env::var("BASE_URL").unwrap_or_else(|_| "/".to_string());
-    println!("base_url: {}", base_url);
+    info!(root, "base_url: {}", base_url);
 
     let open_api_json_url = if base_url == "/" {
         "../openapi.json".to_string()
