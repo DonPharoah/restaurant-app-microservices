@@ -22,10 +22,10 @@ export default function CheckoutCompleted({
     orderNumber: orderNumber,
     orderTotal: orderTotal,
 
-    paymentMethod: 'Master Card ending **** 0987',
+    paymentMethod: 'Master Card',
     estimatedDeliveryTime: 'XX:XX AM',
-    email: 'some@paviw.co.uk',
-    helpNumber: '+02 9629 4884'
+    email: 'some@emai.co',
+    helpNumber: '+xxx xxxxx'
   };
 
   return (
@@ -34,12 +34,12 @@ export default function CheckoutCompleted({
         <CheckCircleIcon className="mx-auto h-12 w-12 text-green-500" />
         <h2 className="my-2 text-lg font-semibold">Order Submitted</h2>
         <p className="text-gray-600">
-          {orderDetails.orderTotal} Paid with {orderDetails.paymentMethod}
+          {orderDetails.orderTotal} Paid
         </p>
         <button className="my-4 rounded bg-orange-500 px-4 py-2 text-white">Track order</button>
       </div>
       <div className="my-4">
-        <h3 className="font-bold">Delivery Address</h3>
+        <h3 className="font-bold">Order time</h3>
         <p>{orderDetails.address}</p>
         <p>{orderDetails.orderDateTime}</p>
       </div>

@@ -1,3 +1,4 @@
+import { logger } from './logger';
 import { Categories, CategoriesScheme, FoodItems, FoodItemsScheme } from './types/food-item';
 import { CustomerOrder, OrderSchema } from './types/order';
 
@@ -56,7 +57,9 @@ async function fetchWithRetry(url: string, retryCount = 5): Promise<any> {
 
   for (let attempt = 0; attempt < retryCount; attempt++) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        cache: 'no-store',
+      });
       if (response.ok) {
         return await response.json();
       } else if (response.status === 500) {
@@ -66,6 +69,7 @@ async function fetchWithRetry(url: string, retryCount = 5): Promise<any> {
         throw new Error(`HTTP Error: ${response.status}`);
       }
     } catch (error) {
+      logger.error(error, 'fetch failed');
       lastError = error as Error;
     }
     // Wait before retrying
@@ -77,10 +81,10 @@ async function fetchWithRetry(url: string, retryCount = 5): Promise<any> {
 export async function getOrderByTransactionID(transactionId: string): Promise<CustomerOrder> {
   const apiUrl = `${process.env.INTERNAL_API_BASE_URL}/order/api/v1/orders/find?transactionId=${transactionId}`;
   try {
-    const data = await fetchWithRetry(apiUrl);
+    const data = await fetchWithRetry(apiUrl, 5);
     return OrderSchema.parse(data);
   } catch (error) {
-    console.error('Failed to fetch order:', error);
+    logger.error(error, 'failed to fetch order');
     throw new Error('Failed to fetch user orders');
   }
 }
