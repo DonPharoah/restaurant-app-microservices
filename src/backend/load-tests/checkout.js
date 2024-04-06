@@ -11,7 +11,7 @@ export const options = {
   },
 };
 
-const baseUrl = "http://localhost:8080";
+const baseUrl = "http://traefik:8080";
 const cartUrl = baseUrl + "/shoppingcart";
 const catalogUrl = baseUrl + "/catalog";
 const checkoutUrl = baseUrl + "/checkout";

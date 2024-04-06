@@ -6,9 +6,15 @@ import router from './routes/routes';
 import { logger } from './utils/logger';
 import { config } from './config/config';
 import express from 'express';
+import pinoHTTP from 'pino-http';
 
 const app = express();
 app.use(express.json());
+app.use(
+  pinoHTTP({
+    logger,
+  })
+);
 
 app.use(config.baseUrl, router)
 

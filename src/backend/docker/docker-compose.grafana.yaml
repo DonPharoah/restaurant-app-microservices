@@ -47,3 +47,12 @@ services:
     networks:
       - loki
       - default
+  
+  influxdb:
+    image: influxdb:1.8
+    networks:
+      - default
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6

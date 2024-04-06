@@ -21,7 +21,6 @@ services:
 
   catalog-api:
     image: catalog-api
-    container_name: catalog
     build: ./services/catalog-api
     depends_on:
       - catalog-db
@@ -40,7 +39,6 @@ services:
 
   order-api:
     image: restaurant/order-api
-    container_name: order
     build:
       platforms:
         - "linux/arm64"
