@@ -16,6 +16,11 @@ exporters:
     endpoint: "0.0.0.0:8889"
     const_labels:
       env: local
+  
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    resource_to_telemetry_conversion:
+      enabled: true
 
   otlp:
     endpoint: tempo:4317
@@ -23,7 +28,7 @@ exporters:
       insecure: true
 
   logging:
-    loglevel: debug
+    loglevel: info 
 
   loki:
     endpoint: http://loki:3100/loki/api/v1/push
@@ -37,6 +42,18 @@ exporters:
 
 processors:
   batch:
+  filter:
+    metrics:
+      exclude:
+        match_type: strict
+        metric_names:
+          - queueSize
+  resource:
+    attributes:
+      - action: insert
+        key: loki.resource.labels
+        value: service.name
+
 
   attributes:
     actions:
@@ -54,20 +71,29 @@ extensions:
   zpages:
     endpoint: :55679
 
+
+connectors:
+  spanmetrics:
+    namespace: traces.span.metrics
+    histogram:
+      unit: ms
+
+  servicegraph:
+
 service:
   extensions: [pprof, zpages, health_check]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, otlp/jaeger, zipkin]
+      exporters: [otlp, otlp/jaeger, zipkin, spanmetrics, servicegraph]
 
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, spanmetrics, servicegraph]
       processors: [batch]
-      exporters: [logging, prometheus]
+      exporters: [logging, prometheus, prometheusremotewrite]
 
     logs:
       receivers: [loki]
-      processors: [attributes]
+      processors: [attributes, resource]
       exporters: [loki]

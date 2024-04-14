@@ -26,8 +26,8 @@ datasources:
       httpHeaderName1: "X-Scope-OrgID"
       derivedFields:
         - datasourceName: Tempo
-          matcherRegex: (?:traceID|trace_id):(\\w+)
-          name: TraceID
+          matcherRegex: '"trace_id": "(\w+)"'
+          name: Tempo
           url: "$${__value.raw}"
           datasourceUid: tempo
     secureJsonData:
@@ -44,6 +44,7 @@ datasources:
     apiVersion: 1
     uid: tempo
     jsonData:
-      httpMethod: GET
       serviceMap:
-        datasourceUid: prometheus
+        datasourceUid: 'prometheus'
+      nodeGraph:
+        enabled: true
