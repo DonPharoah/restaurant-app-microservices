@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache';
 import { logger } from './logger';
 import { Categories, CategoriesScheme, FoodItems, FoodItemsScheme } from './types/food-item';
 import { CustomerOrder, OrderSchema } from './types/order';
@@ -53,30 +54,31 @@ export async function getUserInfo(userId: string) {
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchWithRetry(url: string, retryCount = 5): Promise<any> {
-  let lastError: Error | undefined;
-
-  for (let attempt = 0; attempt < retryCount; attempt++) {
-    try {
-      const response = await fetch(url, {
-        cache: 'no-store',
-      });
-      if (response.ok) {
-        return await response.json();
-      } else if (response.status === 500) {
-        lastError = new Error('Server Error (500)');
-      } else {
-        // Handle other HTTP errors differently if needed
-        throw new Error(`HTTP Error: ${response.status}`);
-      }
-    } catch (error) {
-      logger.error(error, 'fetch failed');
-      lastError = error as Error;
+  await sleep(1000);
+  try {
+    const response = await fetch(url, {
+      next: { tags: ['retried'] },
+      cache: 'no-store',
+    });
+    if (response.ok) {
+      return await response.json();
+    } else if (response.status === 500) {
+      throw new Error('Server Error (500)');
+    } else {
+      // Handle other HTTP errors differently if needed
+      throw new Error(`HTTP Error: ${response.status}`);
     }
-    // Wait before retrying
-    await sleep(1000);
+  } catch (error) {
+    logger.error(error, 'fetch failed');
+    revalidateTag('retried')
+    if (retryCount != 0) {
+      return fetchWithRetry(url, retryCount - 1)
+    } else {
+      return error
+    }
   }
-  throw lastError;
 }
+
 
 export async function getOrderByTransactionID(transactionId: string): Promise<CustomerOrder> {
   const apiUrl = `${process.env.INTERNAL_API_BASE_URL}/order/api/v1/orders/find?transactionId=${transactionId}`;
