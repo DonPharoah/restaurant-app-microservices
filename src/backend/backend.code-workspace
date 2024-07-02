@@ -4,7 +4,6 @@
       "name": "github",
       "path": "../../.github"
     },
-
     {
       "name": "checkout-api",
       "path": "./services/checkout-api"
@@ -38,9 +37,6 @@
       "path": "./services/web-app"
     },
     {
-      "path": "./scripts"
-    },
-    {
       "path": "./services/protobuff"
     },
     {
@@ -53,7 +49,7 @@
     {
       "name": "docker",
       "path": "./docker"
-    },
+    }
   ],
   "settings": {
     "files.exclude": {

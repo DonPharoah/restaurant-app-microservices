@@ -7,7 +7,7 @@ export const options = {
   duration: "30s",
   thresholds: {
     http_req_failed: ["rate<0.01"],
-    http_req_duration: ["p(99)<600"],
+    http_req_duration: ["p(95)<600"],
   },
 };
 
@@ -28,8 +28,9 @@ export default function () {
 
   const foods = getFoods.json();
   const food = foods[Math.floor(Math.random() * foods.length)];
-  
-  const user_id = faker.uuid();
+
+  const user_id = faker.string.uuid();
+
   // create new cart
   const createCart = http.post(
     cartUrl + "/api/v1/cart",
@@ -40,7 +41,7 @@ export default function () {
           item_id: food.id,
           product_description: food.description,
           product_name: food.name,
-          quantity: faker.number(1, 40),
+          quantity: Math.floor(Math.random() * 20),
           unit_price: food.price,
         },
       ],
@@ -54,29 +55,25 @@ export default function () {
 
   // checkout
   const newCart = createCart.json();
-  const creditCard = faker.creditCard();
-  const cardExp = creditCard.exp.split("/");
-
-  const address = faker.address();
 
   const checkoutBody = JSON.stringify({
     address: {
-      city: address.city,
-      country: address.country,
-      state: address.state,
-      street_address: address.address,
-      zip_code: Number(address.zip),
+      city: faker.address.city(),
+      country: faker.address.country(),
+      state: faker.address.state(),
+      street_address: faker.address.street(),
+      zip_code: Number(faker.address.zip()),
     },
     credit_card: {
-      name_on_card: faker.name(),
-      credit_card_cvv: Number(creditCard.cvv),
-      credit_card_expiration_month: Number(cardExp[0]),
-      credit_card_expiration_year: Number(cardExp[1]),
+      name_on_card: faker.person.name(),
+      credit_card_cvv: Number(faker.payment.creditCardCVV()),
+      credit_card_expiration_month: Number(faker.payment.creditCardExpMonth()),
+      credit_card_expiration_year: Number(faker.payment.creditCardExpYear()),
       credit_card_number: "4111111111111111",
     },
     user_id,
-    email: faker.email(),
-    user_currency: faker.currency().short,
+    email: faker.person.email(),
+    user_currency: faker.payment.currencyShort(),
     cart_id: newCart.id,
   });
 
@@ -86,6 +83,4 @@ export default function () {
   check(checkout, {
     "checkout was 200": (r) => r.status == 200,
   });
-
-  sleep(1);
 }

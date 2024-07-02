@@ -48,3 +48,10 @@ datasources:
         datasourceUid: 'prometheus'
       nodeGraph:
         enabled: true
+  
+  - name: Influxdb
+    type: influxdb
+    access: proxy
+    database: k6
+    orgId: 1
+    url: http://influxdb:8086

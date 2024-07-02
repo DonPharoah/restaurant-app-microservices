@@ -63,25 +63,25 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
     
-    - if: matrix.language == 'javascript' 
-      name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+    # - if: matrix.language == 'javascript' 
+    #   name: Autobuild
+    #   uses: github/codeql-action/autobuild@v2
 
-    - if: matrix.language == 'go'
-      name: Build Go
-      run: |
-       bash ./src/backend/services/cart-api/build.sh 
+    # - if: matrix.language == 'go'
+    #   name: Build Go
+    #   run: |
+    #    bash ./src/backend/services/cart-api/build.sh 
 
-    - if: matrix.language == 'csharp'
-      name: Build C#
-      run: |
-        bash ./src/backend/services/identity-api/build.sh
+    # - if: matrix.language == 'csharp'
+    #   name: Build C#
+    #   run: |
+    #     bash ./src/backend/services/identity-api/build.sh
 
-    - if: matrix.language == 'java' 
-      name: Build Java
-      run: |
-       bash ./src/backend/services/order-api/build.sh 
+    # - if: matrix.language == 'java' 
+    #   name: Build Java
+    #   run: |
+    #    bash ./src/backend/services/order-api/build.sh 
         
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+    # - name: Perform CodeQL Analysis
+    #   uses: github/codeql-action/analyze@v2

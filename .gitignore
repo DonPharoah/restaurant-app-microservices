@@ -234,4 +234,4 @@ src/backend/services/basket-api/basket-api
 src/backend/services/.DS_Store
 src/backend/docker/.env
 src/backend/target
-src/backend/load-tests/k6
+*k6
