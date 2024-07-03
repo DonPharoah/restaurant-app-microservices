@@ -48,10 +48,13 @@ datasources:
         datasourceUid: 'prometheus'
       nodeGraph:
         enabled: true
-  
-  - name: Influxdb
+
+  - name: MyInfluxDB
     type: influxdb
-    access: proxy
-    database: k6
-    orgId: 1
     url: http://influxdb:8086
+    secureJsonData:
+      token: EEKpryGZk8pVDXmIuy484BKUxM5jOEDv7YNoeNZUbsNbpbPbP6kK_qY9Zsyw7zNnlZ7pHG16FYzNaqwLMBUz8g==
+    jsonData:
+      version: Flux
+      organization: k6io
+      defaultBucket: demo
