@@ -34,4 +34,5 @@ docker-compose -f docker/docker-compose.yml -f docker/docker-compose.override.ym
   -f docker/docker-compose.kafka.yml \
   -f docker/docker-compose.grafana.yaml \
   -f docker/docker-compose.otel.yml \
+  -f docker/docker-compose.load-tests.yaml \
   --project-directory . up -d --build

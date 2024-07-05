@@ -1,3 +1,2 @@
-docker-compose -f docker/docker-compose.grafana.yaml \
-  -f docker/docker-compose.otel.yml \
-  --project-directory . run --rm k6 run /scripts/checkout.js
+docker-compose -f docker/docker-compose.load-tests.yaml \
+  --project-directory . run k6 run /scripts/checkout.js
