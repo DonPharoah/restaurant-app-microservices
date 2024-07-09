@@ -54,7 +54,6 @@ export async function getUserInfo(userId: string) {
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchWithRetry(url: string, retryCount = 5): Promise<any> {
-  await sleep(1000);
   try {
     const response = await fetch(url, {
       next: { tags: ['retried'] },
@@ -81,6 +80,7 @@ async function fetchWithRetry(url: string, retryCount = 5): Promise<any> {
 
 
 export async function getOrderByTransactionID(transactionId: string): Promise<CustomerOrder> {
+  await sleep(5000);
   const apiUrl = `${process.env.INTERNAL_API_BASE_URL}/order/api/v1/orders/find?transactionId=${transactionId}`;
   try {
     const data = await fetchWithRetry(apiUrl, 5);

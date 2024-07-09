@@ -29,3 +29,6 @@ export default async function Page({ searchParams }: { searchParams?: { [key: st
     />
   );
 }
+
+export const fetchCache = 'force-no-store'
+export const dynamic = 'force-dynamic'
