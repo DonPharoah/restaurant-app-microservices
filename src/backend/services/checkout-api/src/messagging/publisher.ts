@@ -22,13 +22,13 @@ export class Publisher {
 
   public async Publish(message: any): Promise<void> {
     const record: ProducerRecord = {
-     topic: this.topic,
-     messages: [{value: JSON.stringify(message)}],
+      topic: this.topic,
+      messages: [{ value: JSON.stringify(message) }],
     }
     await this.producer.send(record)
   }
 
-  private createProducer() : Producer {
+  private createProducer(): Producer {
     const kafka = new Kafka({
       clientId: this.clientId,
       brokers: this.brokers,
@@ -38,7 +38,6 @@ export class Publisher {
 }
 
 
-const checkoutPublisher = new Publisher(config.checkoutTopic, [config.checkoutKafkaBroker], "checkout-api")
-checkoutPublisher.start().catch(logger.error)
+export const checkoutPublisher = new Publisher(config.checkoutTopic, [config.checkoutKafkaBroker], "checkout-api")
 
 export default checkoutPublisher;

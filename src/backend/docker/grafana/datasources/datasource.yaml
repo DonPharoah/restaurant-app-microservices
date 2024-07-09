@@ -59,15 +59,3 @@ datasources:
       organization: k6io
       defaultBucket: demo
       tlsSkipVerify: true
-
-  - name: InfluxDB_v2_Flux
-    type: influxdb
-    access: proxy
-    url: http://influxdb:8086
-    jsonData:
-      version: Flux
-      organization: organization
-      defaultBucket: bucket
-      tlsSkipVerify: true
-    secureJsonData:
-      token: token
