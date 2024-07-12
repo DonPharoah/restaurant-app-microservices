@@ -10,8 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { SelectProduct } from '@/lib/db';
 import { deleteProduct } from './actions';
+import { SelectProduct } from '@/lib/fetch';
 
 export function Product({ product }: { product: SelectProduct }) {
   return (
@@ -32,7 +32,7 @@ export function Product({ product }: { product: SelectProduct }) {
         </Badge>
       </TableCell>
       <TableCell className="hidden md:table-cell">{`$${product.price}`}</TableCell>
-      <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
+      <TableCell className="hidden md:table-cell">{product.currency}</TableCell>
       <TableCell className="hidden md:table-cell">
         {product.availableAt.toLocaleDateString()}
       </TableCell>

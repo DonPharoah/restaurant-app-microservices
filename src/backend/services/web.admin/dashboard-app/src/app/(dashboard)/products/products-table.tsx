@@ -19,26 +19,26 @@ import { Product } from './product';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SelectProduct } from '@/lib/db';
+import { SelectProduct } from '@/lib/fetch';
 
 export function ProductsTable({
   products,
   offset,
-  totalProducts
+  totalProducts,
+  productsPerPage,
 }: {
   products: SelectProduct[];
   offset: number;
   totalProducts: number;
+  productsPerPage: number;
 }) {
   let router = useRouter();
-  let productsPerPage = 5;
-
   function prevPage() {
     router.back();
   }
 
   function nextPage() {
-    router.push(`/?offset=${offset}`, { scroll: false });
+    router.push(`/products?offset=${offset}`, { scroll: false });
   }
 
   return (
@@ -46,7 +46,7 @@ export function ProductsTable({
       <CardHeader>
         <CardTitle>Products</CardTitle>
         <CardDescription>
-          Manage your products and view their sales performance.
+          Manage your products.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -59,9 +59,7 @@ export function ProductsTable({
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="hidden md:table-cell">Price</TableHead>
-              <TableHead className="hidden md:table-cell">
-                Total Sales
-              </TableHead>
+              <TableHead className="hidden md:table-cell">Currency</TableHead>
               <TableHead className="hidden md:table-cell">Created at</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>

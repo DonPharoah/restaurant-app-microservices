@@ -56,7 +56,7 @@ pub struct CatalogRequest {
 
 #[derive(Serialize, Deserialize, JsonSchema)]
 #[serde(crate = "rocket::serde")]
-pub struct CatalogResponse {
+pub struct CatalogItem {
     pub id: i32,
     pub name: String,
     pub description: Option<String>,
@@ -64,4 +64,13 @@ pub struct CatalogResponse {
     pub price: f64,
     pub currency: String,
     pub category: String,
+}
+
+#[derive(Serialize, Deserialize, JsonSchema)]
+#[serde(crate = "rocket::serde")]
+pub struct CatalogsResponse {
+    pub catalog_items: Vec<CatalogItem>,
+    pub total: i64,
+    pub offset: i64,
+    pub limit: i64,
 }

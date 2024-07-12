@@ -20,14 +20,15 @@ async function fetchItems(apiUrl: string) {
   }
 
   const items: FoodItems = FoodItemsScheme.parse(await res.json());
-  const updatedItems = items.map((item) => {
+  const catalog_items = items.catalog_items.map((item) => {
     return {
       ...item,
       image: process.env.INTERNAL_API_BASE_URL + item.image
     };
   });
 
-  return updatedItems;
+
+  return {...items, catalog_items}
 }
 
 export async function fetchCategories(): Promise<Categories> {

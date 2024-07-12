@@ -17,7 +17,7 @@ export const FoodsPage = ({
       </div>
       <div className="order-last min-h-screen w-full md:order-none">
         <div className="flex flex-wrap justify-center">
-          {foodItems.map((item) => (
+          {foodItems.catalog_items.map((item) => (
             <Item foodItem={item} key={item.id} />
           ))}
         </div>

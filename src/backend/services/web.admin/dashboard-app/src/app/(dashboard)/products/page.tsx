@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { File, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductsTable } from './products-table';
-import { getProducts } from '@/lib/db';
+import { fetchCatalogs } from '@/lib/fetch';
 
 
 export default async function ProductsPage({
@@ -12,9 +12,11 @@ export default async function ProductsPage({
 }) {
   const search = searchParams.q ?? '';
   const offset = searchParams.offset ?? 0;
-  const { products, newOffset, totalProducts } = await getProducts(
+  const productsPerPage = 10;
+  const { products, newOffset, totalProducts } = await fetchCatalogs(
     search,
-    Number(offset)
+    Number(offset),
+    productsPerPage,
   );
 
   return (
@@ -48,6 +50,7 @@ export default async function ProductsPage({
           products={products}
           offset={newOffset ?? 0}
           totalProducts={totalProducts}
+          productsPerPage={productsPerPage}
         />
       </TabsContent>
     </Tabs>

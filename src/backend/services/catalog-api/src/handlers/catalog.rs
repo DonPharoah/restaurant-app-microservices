@@ -1,8 +1,9 @@
-use crate::models::catalog::{Catalog, CatalogRequest, CatalogResponse, NewCatalog, UpdateCatalog};
+use crate::models::catalog::{Catalog, CatalogItem, CatalogRequest, CatalogsResponse, NewCatalog, UpdateCatalog};
 
 use crate::db::db::establish_connection;
 use crate::schema::{self};
 use bigdecimal::ToPrimitive;
+use diesel::dsl::Limit;
 use diesel::prelude::*;
 use opentelemetry::global::{self, ObjectSafeSpan};
 use opentelemetry::trace::Tracer;
@@ -72,8 +73,12 @@ pub fn delete(catalog_id: i32) {
 }
 
 #[openapi]
-#[get("/all?<category_name>", format = "json")]
-pub fn get_catalogs(category_name: Option<String>) -> Result<Json<Vec<CatalogResponse>>> {
+#[get("/all?<category_name>&<offset>&<limit>", format = "json")]
+pub fn get_catalogs(
+    category_name: Option<String>,
+    offset: Option<i64>,
+    limit: Option<i64>,
+) -> Result<Json<CatalogsResponse>> {
     use schema::catalog::dsl::*;
     let connection = &mut establish_connection();
 
@@ -81,11 +86,18 @@ pub fn get_catalogs(category_name: Option<String>) -> Result<Json<Vec<CatalogRes
     if let Some(ref cat_name) = category_name {
         query = query.filter(category.eq(cat_name));
     }
-    let res = query
+
+    let offset = offset.unwrap_or(0);
+    let limit = limit.unwrap_or(20);
+    let total = catalog.select(diesel::dsl::count(id)).first(connection).expect("failed to get catalogs count");
+
+    let catalog_items: Vec<CatalogItem> = query
+        .offset(offset)
+        .limit(limit)
         .load::<Catalog>(connection)
         .expect("failed to loading catalogs")
         .into_iter()
-        .map(|c| CatalogResponse {
+        .map(|c| CatalogItem {
             id: c.id,
             name: c.name,
             description: c.description,
@@ -95,12 +107,20 @@ pub fn get_catalogs(category_name: Option<String>) -> Result<Json<Vec<CatalogRes
             category: c.category,
         })
         .collect();
-    return Ok(Json(res));
+
+    let result = CatalogsResponse {
+        total,
+        catalog_items,
+        offset,
+        limit,
+    };
+    
+    return Ok(Json(result));
 }
 
 #[openapi]
 #[get("/<catalog_id>", format = "json")]
-pub fn get_catalog(catalog_id: i32) -> Result<Json<CatalogResponse>> {
+pub fn get_catalog(catalog_id: i32) -> Result<Json<CatalogItem>> {
     use schema::catalog::dsl::*;
 
     let connection = &mut establish_connection();
@@ -109,7 +129,7 @@ pub fn get_catalog(catalog_id: i32) -> Result<Json<CatalogResponse>> {
         .first::<Catalog>(connection)
         .expect("failed to loading catalogs");
 
-    let res = CatalogResponse {
+    let res = CatalogItem {
         id: c.id,
         name: c.name,
         description: c.description,
