@@ -69,7 +69,7 @@ jobs:
             # Essentially just ignore the cache output (PR can't write to registry cache)
             echo "cache-to=type=local,dest=/tmp/discard,ignore-error=true" >> $GITHUB_OUTPUT
           else
-            echo "cache-to=type=registry,mode=max,ref=ghcr.io/chayxana/${{ inputs.service-name }}:build-cache" >> $GITHUB_OUTPUT
+            echo "cache-to=type=registry,mode=max,ref=ghcr.io/chayxana/${{ inputs.service-name }}:build-cache-${{ matrix.architecture }}" >> $GITHUB_OUTPUT
           fi
 
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
@@ -85,7 +85,7 @@ jobs:
           file: src/backend/services/${{ inputs.service-name }}/${{ inputs.docker-file }}
           push: ${{ steps.build-metadata.outputs.push }}
           tags: ${{ steps.metadata.outputs.tags }} 
-          cache-from: type=registry,ref=ghcr.io/chayxana/${{ inputs.service-name }}:build-cache
+          cache-from: type=registry,ref=ghcr.io/chayxana/${{ inputs.service-name }}:build-cache-${{ matrix.architecture }}
           cache-to: ${{ steps.build-metadata.outputs.cache-to }}
           platforms: linux/${{ matrix.architecture }}
 

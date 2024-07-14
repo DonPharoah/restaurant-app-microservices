@@ -27,7 +27,23 @@ export default function () {
   }
 
   const foods = getFoods.json();
-  const food = foods[Math.floor(Math.random() * foods.length)];
+
+  const getCartItems = (catalogItems) => {
+    const cartItems = [];
+    for (let i = 0; i < Math.floor(Math.random() * 10); i++) {
+      const item =
+        catalogItems[Math.floor(Math.random() * catalogItems.length)];
+      cartItems.push({
+        img: item.image,
+        item_id: item.id,
+        product_description: item.description,
+        product_name: item.name,
+        quantity: Math.floor(Math.random() * 20),
+        unit_price: item.price,
+      });
+    }
+    return cartItems;
+  };
 
   const user_id = faker.string.uuid();
 
@@ -35,16 +51,7 @@ export default function () {
   const createCart = http.post(
     cartUrl + "/api/v1/cart",
     JSON.stringify({
-      items: [
-        {
-          img: food.image,
-          item_id: food.id,
-          product_description: food.description,
-          product_name: food.name,
-          quantity: Math.floor(Math.random() * 20),
-          unit_price: food.price,
-        },
-      ],
+      items: getCartItems(foods.catalog_items),
       user_id,
     })
   );
