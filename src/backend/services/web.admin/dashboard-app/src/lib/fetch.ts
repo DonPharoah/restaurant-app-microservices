@@ -1,4 +1,5 @@
 import { CatalogItems, CatalogItemsScheme, Categories, CategoriesScheme } from "./types/catalog";
+import { Orders } from "./types/order";
 
 export type SelectProduct = {
   status: "active" | "inactive" | "archived";
@@ -70,4 +71,15 @@ export async function fetchCategories(): Promise<Categories> {
 
   const categories: Categories = CategoriesScheme.parse(await res.json());
   return categories;
+}
+
+export async function fetchOrders(offset: number, limit: number): Promise<Orders> {
+  const apiUrl = `${process.env.INTERNAL_API_BASE_URL}/order/api/v1/orders?offset=${offset}&limit=${limit}`;
+  const res = await fetch(apiUrl);
+  if (!res.ok) {
+    throw new Error('Failed to fetch orders data');
+  }
+
+  const orders = await res.json();
+  return orders;
 }

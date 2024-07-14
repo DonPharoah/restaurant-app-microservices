@@ -43,6 +43,9 @@ public class OrdersMapper {
     public OrderDto mapOrderToDto(Order order) {
         var dto = new OrderDto();
         dto.setId(order.getId());
+        dto.setCartId(order.getCartId());
+        dto.setTransactionId(order.getTransactionId());
+        dto.setCheckoutId(order.getCheckoutId());
 
         var orderItems = order.getOrderItems()
                 .stream()

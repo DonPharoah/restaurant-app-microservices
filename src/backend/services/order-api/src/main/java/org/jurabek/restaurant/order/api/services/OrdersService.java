@@ -12,7 +12,9 @@ public interface OrdersService {
 
     OrderDto getOrderByTransactionId(String transactionId);
 
-    List<OrderDto> getAll();
+    List<OrderDto> getAll(Integer offset, Integer limit);
+
+    Long getCount();
 
     OrderDto getById(String orderId);
     void Delete(String orderId);

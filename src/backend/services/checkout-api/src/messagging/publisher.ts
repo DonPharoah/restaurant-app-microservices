@@ -11,6 +11,7 @@ export class Publisher {
 
   public async start(): Promise<void> {
     try {
+      
       await this.producer.connect()
     } catch (error) {
       logger.error('Error connecting the producer: ', error)
@@ -32,6 +33,10 @@ export class Publisher {
     const kafka = new Kafka({
       clientId: this.clientId,
       brokers: this.brokers,
+      retry: {
+        initialRetryTime: 3000,
+        retries: 15
+      },
     })
     return kafka.producer()
   }

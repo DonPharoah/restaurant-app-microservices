@@ -13,6 +13,7 @@ import jakarta.ws.rs.NotFoundException;
 
 import org.jboss.resteasy.reactive.RestQuery;
 import org.jurabek.restaurant.order.api.dtos.OrderDto;
+import org.jurabek.restaurant.order.api.dtos.OrdersDto;
 import org.jurabek.restaurant.order.api.services.OrdersService;
 
 @Path("api/v1/orders")
@@ -39,9 +40,10 @@ public class OrdersController {
 		return null;
 	}
 
-	@GET
-	public List<OrderDto> getData() {
-		return this.ordersService.getAll();
+	@GET()
+	public OrdersDto getAll(@RestQuery Integer offset, @RestQuery Integer limit) {
+		var orders = ordersService.getAll(offset, limit);
+	 	return new OrdersDto(orders, ordersService.getCount(), offset, limit);
 	}
 
 	@GET

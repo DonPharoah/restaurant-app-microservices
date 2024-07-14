@@ -72,7 +72,7 @@ function DesktopNav() {
           <Home className="h-5 w-5" />
         </NavItem>
 
-        <NavItem href="#" label="Orders">
+        <NavItem href="/orders" label="Orders">
           <ShoppingCart className="h-5 w-5" />
         </NavItem>
 

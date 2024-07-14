@@ -18,7 +18,6 @@ import org.jurabek.restaurant.order.api.models.Order;
 import org.jurabek.restaurant.order.api.models.OrderItems;
 import org.jurabek.restaurant.order.api.repositories.OrdersRepository;
 
-
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -42,17 +41,17 @@ public class OrdersServiceTests {
 
     // @Test
     // public void CreateShouldCreateWhenCustomerBasketDto() {
-    //     var customerBasketDto = new CustomerBasket();
-    //     var order = new Order();
-    //     var orderItems = new ArrayList<OrderItems>();
-    //     orderItems.add(new OrderItems());
-    //     order.setOrderItems(orderItems);
+    // var customerBasketDto = new CustomerBasket();
+    // var order = new Order();
+    // var orderItems = new ArrayList<OrderItems>();
+    // orderItems.add(new OrderItems());
+    // order.setOrderItems(orderItems);
 
-    //     when(mapper.mapDtoToOrder(customerBasketDto)).thenReturn(order);
+    // when(mapper.mapDtoToOrder(customerBasketDto)).thenReturn(order);
 
-    //     ordersService.Create(customerBasketDto);
+    // ordersService.Create(customerBasketDto);
 
-    //     verify(ordersRepository, times(1)).persist(order);
+    // verify(ordersRepository, times(1)).persist(order);
     // }
 
     @Test
@@ -62,10 +61,10 @@ public class OrdersServiceTests {
 
         var dto = new OrderDto();
 
-        when(ordersRepository.fetchAll()).thenReturn(orders);
+        when(ordersRepository.fetchAll(0, 10)).thenReturn(orders);
         when(mapper.mapOrderToDto(order)).thenReturn(dto);
 
-        List<OrderDto> result = ordersService.getAll();
+        List<OrderDto> result = ordersService.getAll(0, 10);
 
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals(result.get(0), dto);

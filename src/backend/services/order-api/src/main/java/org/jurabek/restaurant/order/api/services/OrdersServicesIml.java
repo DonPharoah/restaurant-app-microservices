@@ -27,8 +27,8 @@ public class OrdersServicesIml implements OrdersService {
     }
 
     @Override
-    public List<OrderDto> getAll() {
-        return this.ordersRepository.fetchAll()
+    public List<OrderDto> getAll(Integer offset, Integer limit) {
+        return this.ordersRepository.fetchAll(offset, offset + limit)
                 .stream()
                 .map(o -> mapper.mapOrderToDto(o))
                 .collect(Collectors.toList());
@@ -60,5 +60,10 @@ public class OrdersServicesIml implements OrdersService {
             return null;
         }
         return mapper.mapOrderToDto(order);
+    }
+
+    @Override
+    public Long getCount() {
+        return ordersRepository.count();
     }
 }

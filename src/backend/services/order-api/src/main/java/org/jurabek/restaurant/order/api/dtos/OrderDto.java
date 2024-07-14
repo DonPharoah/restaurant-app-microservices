@@ -13,5 +13,8 @@ import lombok.Data;
 public class OrderDto {
     private UUID id;
     private Date orderedDate;
+    private UUID cartId;
+    private UUID transactionId;
+    private UUID checkoutId;
     private List<OrderItemDto> orderItems;
 }

@@ -4,11 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import org.jurabek.restaurant.order.api.models.Order;
-
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-import io.quarkus.panache.common.Page;
 
 /**
  * OrdersRepository
@@ -23,7 +20,7 @@ public class OrdersRepository implements PanacheRepositoryBase<Order, UUID> {
       return find("transactionId", transactionId).firstResult();
     }
 
-    public List<Order> fetchAll() {
-      return find("#Orders.fetchAll").page(Page.ofSize(30)).nextPage().list();
+    public List<Order> fetchAll(Integer start, Integer end) {
+      return this.findAll().range(start, end).list();
     }
 }

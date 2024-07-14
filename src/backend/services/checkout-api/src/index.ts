@@ -33,6 +33,7 @@ async function main() {
 
   process.on('SIGINT', async () => {
     await otel.shutdown();
+    await checkoutPublisher.shutdown();
     logger.info("Gracefully shutting down from SIGINT (Ctrl-C)");
     // some other closing procedures go here
     process.exit(0);
