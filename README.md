@@ -43,7 +43,6 @@ Web app developed using Next.js with SSR
 <img width="1828" alt="image" src="https://github.com/chayxana/Restaurant-App/assets/8397056/590a5fe5-58c6-425f-934c-54456a9257bf">
 
 
-
 ## Mobile app
 [Unfortunately I no longer be able to maintain Xamarin(mobile) part](https://github.com/chayxana/Restaurant-App/issues/81)
 
